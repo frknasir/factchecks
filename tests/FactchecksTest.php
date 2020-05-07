@@ -8,15 +8,10 @@ use Illuminate\Foundation\Auth\User;
 
 class FactchecksTest extends TestCase
 {
-  private $factcheck1 = [
-    'claim' => 'You dont have a name',
-    'conclusion' => 'Thats not true. I have a name'
-  ];
-
-  private $factcheck2 = [
-    'claim' => 'Messi is the greatest of all time',
-    'conclusion' => 'You are absolutely right'
-  ];
+  private $claim1 = "You dont have a name";
+  private $conclusion1 = "Thats not true. I have a name";
+  private $claim2 = "Messi is the greatest of all time";
+  private $conclusion2 = "You are absolutely right";
 
   /** @test */
   public function users_without_factchecker_interface_do_not_get_approved()
@@ -25,7 +20,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $post->factcheck(array($this->factcheck1, $this->factcheck2));
+    $post->factcheck($this->claim1, $this->conclusion1);
 
     $factcheck = $post->factchecks()->first();
 
@@ -39,13 +34,13 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $post->factcheck(array($this->factcheck1));
-    $post->factcheck(array($this->factcheck2));
+    $post->factcheck($this->claim1, $this->conclusion1);
+    $post->factcheck($this->claim2, $this->conclusion2);
 
     $this->assertCount(2, $post->factchecks);
 
-    // $this->assertSame('this is a comment', $post->factchecks[0]->comment);
-    // $this->assertSame('this is a different comment', $post->factchecks[1]->comment);
+    $this->assertSame('You dont have a name', $post->factchecks[0]->claim);
+    $this->assertSame('Messi is the greatest of all time', $post->factchecks[1]->claim);
   }
 
   /** @test */
@@ -55,7 +50,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck = $post->factcheck($this->claim1, $this->conclusion1);
 
     $this->assertNull($factcheck->factchecker);
     $this->assertNull($factcheck->user_id);
@@ -72,7 +67,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck2));
+    $factcheck = $post->factcheck($this->claim2, $this->conclusion2);
 
     $this->assertSame($user->toArray(), $factcheck->factchecker->toArray());
   }
@@ -86,7 +81,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheckAsUser($user, array($this->factcheck1));
+    $factcheck = $post->factcheckAsUser($user, $this->claim1, $this->conclusion1);
 
     $this->assertSame($user->toArray(), $factcheck->factchecker->toArray());
   }
@@ -102,13 +97,14 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck = $post->factcheck($this->claim1, $this->conclusion1);
 
     $this->assertNull($factcheck->submitted_at);
 
     $factcheck->submit();
 
     $this->assertTrue($factcheck->submitted_at instanceof \Illuminate\Support\Carbon);
+    $this->assertTrue($factcheck->getSubmittedAttribute());
   }
 
   /** @test */
@@ -122,7 +118,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck = $post->factcheck($this->claim1, $this->conclusion1);
 
     $this->assertNull($factcheck->approved_at);
 
@@ -130,6 +126,7 @@ class FactchecksTest extends TestCase
 
     $this->assertTrue($factcheck->approved_at instanceof \Illuminate\Support\Carbon);
     $this->assertSame($user->id, $factcheck->approved_by);
+    $this->assertTrue($factcheck->getApprovedAttribute());
   }
 
   /** @test */
@@ -143,13 +140,14 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck = $post->factcheck($this->claim1, $this->conclusion1);
 
     $this->assertNull($factcheck->published_at);
 
     $factcheck->publish();
 
     $this->assertTrue($factcheck->published_at instanceof \Illuminate\Support\Carbon);
+    $this->assertTrue($factcheck->getPublishedAttribute());
   }
 
   /** @test */
@@ -161,7 +159,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck = $post->factcheck($this->claim1, $this->conclusion1);
 
     $this->assertSame($factcheck->factcheckable->id, $post->id);
     $this->assertSame($factcheck->factcheckable->title, $post->title);
@@ -176,7 +174,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheckAsUser($user, array($this->factcheck1));
+    $factcheck = $post->factcheckAsUser($user, $this->claim1, $this->conclusion1);
 
     $this->assertSame($user->id, $factcheck->approved_by);
   }
@@ -192,8 +190,8 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $post->factcheck(array($this->factcheck1));
-    $post->factcheckAsUser($user, array($this->factcheck2));
+    $post->factcheck($this->claim1, $this->conclusion1);
+    $post->factcheckAsUser($user, $this->claim2, $this->conclusion2);
 
     $this->assertCount(2, $post->factchecks()->draft()->get());
   }
@@ -209,9 +207,9 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck = $post->factcheck($this->claim1, $this->conclusion1);
     $factcheck->submit();
-    $post->factcheck(array($this->factcheck2));
+    $post->factcheck($this->claim2, $this->conclusion2);
 
     $this->assertCount(1, $post->factchecks()->submitted()->get());
   }
@@ -227,7 +225,7 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck = $post->factcheck($this->claim1, $this->conclusion1);
     $this->assertCount(0, $post->factchecks()->submitted()->get());
 
     $factcheck->submit();
@@ -247,8 +245,8 @@ class FactchecksTest extends TestCase
       'title' => 'Some post'
     ]);
 
-    $post->factcheck(array($this->factcheck1));
-    $post->factcheckAsUser($user, array($this->factcheck2));
+    $post->factcheck($this->claim1, $this->conclusion1);
+    $post->factcheckAsUser($user, $this->claim2, $this->conclusion2);
 
     $this->assertCount(2, $post->factchecks);
     $this->assertCount(1, $post->factchecks()->published()->get());
