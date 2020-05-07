@@ -9,15 +9,24 @@ Add the ability to associate factchecks to your Laravel Eloquent models. The fac
 ```php
 $post = Post::find(1);
 
-$post->factcheck(array([
-  'claim' => 'Messi is the greatest of all time',
-  'conclusion' => 'You cant be wrong with that'
-]));
+/**
+ * Attach a factcheck to this model.
+ *
+ * @param string $claim
+ * @param string $conclusion
+ * @return \Illuminate\Database\Eloquent\Model
+ */
+$post->factcheck('Messi is the great', 'You cant be wrong with that');
 
-$post->factcheckAsUser($user, array([
-  'claim' => 'Messi is the greatest of all time',
-  'conclusion' => 'You cant be wrong with that'
-]));
+/**
+ * Attach a factcheck to this model as a specific user.
+ *
+ * @param Model|null $user
+ * @param string $claim
+ * @param string $conclusion
+ * @return \Illuminate\Database\Eloquent\Model
+ */
+$post->factcheckAsUser($user, 'Messi is the great', 'You cant be wrong with that');
 ```
 
 ## Installation
@@ -93,6 +102,32 @@ $factcheck = $post->factcheckAsUser($yourUser, array([
   'conclusion' => 'You cant be wrong with that'
 ]));
 ```
+
+### Auto Approve Factchecks
+
+If you want to automatically approve a factcheck for a specific user (and optionally model) you can let your User model implement the following interface and method:
+
+```php
+namespace App\Models;
+
+use StarfolkSoftware\Factchecks\Contracts\Factchecker;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable implements Factchecker
+{
+  /**
+   * Check if a comment for a specific model needs to be approved.
+   * @param mixed $model
+   * @return bool
+   */
+  public function needsFactcheckApproval($model): bool
+  {
+    return false;    
+  } 
+}
+```
+
+The `needsFactcheckApproval` method received the model instance that you want to add a factcheck to and you can either return `true` to mark the factcheck as **not** approved, or return `false` to mark the factcheck as **approved**.
 
 ### Auto Approve Factchecks
 

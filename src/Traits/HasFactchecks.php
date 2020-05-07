@@ -22,27 +22,30 @@ trait HasFactchecks
   /**
    * Attach a factcheck to this model.
    *
-   * @param array $factcheck
+   * @param string $claim
+   * @param string $conclusion
    * @return \Illuminate\Database\Eloquent\Model
    */
-  public function factcheck(array $factchecks)
+  public function factcheck(string $claim, string $conclusion)
   {
-    return $this->factcheckAsUser(auth()->user(), $factchecks);
+    return $this->factcheckAsUser(auth()->user(), $claim, $conclusion);
   }
 
   /**
    * Attach a factcheck to this model as a specific user.
    *
    * @param Model|null $user
-   * @param array $factcheck
+   * @param string $claim
+   * @param string $conclusion
    * @return \Illuminate\Database\Eloquent\Model
    */
-  public function factcheckAsUser(?Model $user, array $factchecks)
+  public function factcheckAsUser(?Model $user, string $claim, string $conclusion)
   {
     $factcheckClass = config('factchecks.factcheck_class');
 
     $factcheck = new $factcheckClass([
-      'factchecks' => collect($factchecks)->toJson(),
+      'claim' => $claim,
+      'conclusion' => $conclusion,
       'submitted_at' => ($user instanceof Factchecker && !$user->needsFactcheckApproval($this)) ? now() : NULL,
       'approved_at' => ($user instanceof Factchecker && !$user->needsFactcheckApproval($this)) ? now() : NULL,
       'published_at' => ($user instanceof Factchecker && !$user->needsFactcheckApproval($this)) ? now() : NULL,
