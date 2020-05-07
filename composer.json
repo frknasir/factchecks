@@ -44,7 +44,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "StarfolkSoftware\\Factchecks\\CommentsServiceProvider"
+        "StarfolkSoftware\\Factchecks\\FactchecksServiceProvider"
       ]
     }
   }

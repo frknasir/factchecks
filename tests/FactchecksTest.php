@@ -88,13 +88,15 @@ class FactchecksTest extends TestCase
 
     $factcheck = $post->factcheckAsUser($user, array($this->factcheck1));
 
-    $this->assertSame($user->toArray(), $comment->commentator->toArray());
+    $this->assertSame($user->toArray(), $factcheck->factchecker->toArray());
   }
 
   /** @test */
   public function factchecks_can_be_submitted()
   {
     $user = User::first();
+
+    auth()->login($user);
 
     $post = Post::create([
       'title' => 'Some post'
@@ -104,15 +106,17 @@ class FactchecksTest extends TestCase
 
     $this->assertNull($factcheck->submitted_at);
 
-    $factcheck->approve();
+    $factcheck->submit();
 
-    $this->assertTrue($factcheck->submitted_at);
+    $this->assertTrue($factcheck->submitted_at instanceof \Illuminate\Support\Carbon);
   }
 
   /** @test */
   public function factchecks_can_be_approved()
   {
     $user = User::first();
+
+    auth()->login($user);
 
     $post = Post::create([
       'title' => 'Some post'
@@ -124,14 +128,16 @@ class FactchecksTest extends TestCase
 
     $factcheck->approve();
 
-    $this->assertTrue($factcheck->approved_at);
-    $this->assertTrue($factcheck->approved_by);
+    $this->assertTrue($factcheck->approved_at instanceof \Illuminate\Support\Carbon);
+    $this->assertSame($user->id, $factcheck->approved_by);
   }
 
   /** @test */
   public function factchecks_can_be_published()
   {
     $user = User::first();
+
+    auth()->login($user);
 
     $post = Post::create([
       'title' => 'Some post'
@@ -141,9 +147,9 @@ class FactchecksTest extends TestCase
 
     $this->assertNull($factcheck->published_at);
 
-    $factcheck->approve();
+    $factcheck->publish();
 
-    $this->assertTrue($factcheck->published_at);
+    $this->assertTrue($factcheck->published_at instanceof \Illuminate\Support\Carbon);
   }
 
   /** @test */
@@ -176,7 +182,64 @@ class FactchecksTest extends TestCase
   }
 
   /** @test */
+  public function factchecks_have_a_draft_scope()
+  {
+    $user = User::first();
+
+    auth()->login($user);
+
+    $post = Post::create([
+      'title' => 'Some post'
+    ]);
+
+    $post->factcheck(array($this->factcheck1));
+    $post->factcheckAsUser($user, array($this->factcheck2));
+
+    $this->assertCount(2, $post->factchecks()->draft()->get());
+  }
+
+  /** @test */
+  public function factchecks_have_a_submitted_scope()
+  {
+    $user = User::first();
+
+    auth()->login($user);
+
+    $post = Post::create([
+      'title' => 'Some post'
+    ]);
+
+    $factcheck = $post->factcheck(array($this->factcheck1));
+    $factcheck->submit();
+    $post->factcheck(array($this->factcheck2));
+
+    $this->assertCount(1, $post->factchecks()->submitted()->get());
+  }
+
+  /** @test */
   public function factchecks_have_an_approved_scope()
+  {
+    $user = User::first();
+
+    auth()->login($user);
+
+    $post = Post::create([
+      'title' => 'Some post'
+    ]);
+
+    $factcheck = $post->factcheck(array($this->factcheck1));
+    $this->assertCount(0, $post->factchecks()->submitted()->get());
+
+    $factcheck->submit();
+    $this->assertCount(1, $post->factchecks()->submitted()->get());
+
+    $factcheck->approve();
+    $this->assertCount(0, $post->factchecks()->submitted()->get());
+    $this->assertCount(1, $post->factchecks()->approved()->get());
+  }
+
+  /** @test */
+  public function factchecks_have_a_published_scope()
   {
     $user = ApprovedUser::first();
 
@@ -185,11 +248,9 @@ class FactchecksTest extends TestCase
     ]);
 
     $post->factcheck(array($this->factcheck1));
-    $post->commentAsUser($user, array($this->factcheck2));
+    $post->factcheckAsUser($user, array($this->factcheck2));
 
     $this->assertCount(2, $post->factchecks);
-    $this->assertCount(1, $post->factchecks()->approved()->get());
-
-    // $this->assertSame('', $post->factchecks()->approved()->first()->factcheck);
+    $this->assertCount(1, $post->factchecks()->published()->get());
   }
 }

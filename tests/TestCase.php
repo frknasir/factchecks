@@ -41,7 +41,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     (new \CreateFactchecksTable())->up();
 
-    $this->app['db']->connection()->getSchemaBuilder()->create('factchecks', function (Blueprint $table) {
+    $this->app['db']->connection()->getSchemaBuilder()->create('posts', function (Blueprint $table) {
       $table->increments('id');
       $table->string('title');
       $table->timestamps();

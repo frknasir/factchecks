@@ -42,10 +42,11 @@ trait HasFactchecks
     $factcheckClass = config('factchecks.factcheck_class');
 
     $factcheck = new $factcheckClass([
-      'factchecks' => collect($factcheck)->toJson(),
-      'submitted_at' => ($user instanceof factchecker) ? now() : NULL,
-      'approved_at' => ($user instanceof factchecker) ? now() : NULL,
-      'published_at' => ($user instanceof factchecker) ? now() : NULL,
+      'factchecks' => collect($factchecks)->toJson(),
+      'submitted_at' => ($user instanceof Factchecker && !$user->needsFactcheckApproval($this)) ? now() : NULL,
+      'approved_at' => ($user instanceof Factchecker && !$user->needsFactcheckApproval($this)) ? now() : NULL,
+      'published_at' => ($user instanceof Factchecker && !$user->needsFactcheckApproval($this)) ? now() : NULL,
+      'approved_by' => ($user instanceof Factchecker && !$user->needsFactcheckApproval($this)) ? $user->getKey() : NULL,
       'user_id' => is_null($user) ? null : $user->getKey(),
       'factcheckable_id' => $this->getKey(),
       'factcheckable_type' => get_class(),

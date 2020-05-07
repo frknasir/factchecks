@@ -12,9 +12,9 @@ return [
   'factcheck_class' => \StarfolkSoftware\Factchecks\Factcheck::class,
 
   /*
-  * The user model that should be used when associating comments with
-  * commentators. If null, the default user provider from your
+  * The user model that should be used when associating factchecks with
+  * factcheckers. If null, the default user provider from your
   * Laravel authentication configuration will be used.
   */
-  'user_model' => null,
+  'user_model' => \Illuminate\Foundation\Auth\User::class,
 ];
