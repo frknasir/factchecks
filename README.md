@@ -1,9 +1,8 @@
 # Add factchecks to your Laravel application
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/beyondcode/laravel-comments.svg?style=flat-square)](https://packagist.org/packages/beyondcode/laravel-comments)
-[![Build Status](https://img.shields.io/travis/beyondcode/laravel-comments/master.svg?style=flat-square)](https://travis-ci.org/beyondcode/laravel-comments)
-[![Quality Score](https://img.shields.io/scrutinizer/g/beyondcode/laravel-comments.svg?style=flat-square)](https://scrutinizer-ci.com/g/beyondcode/laravel-comments)
-[![Total Downloads](https://img.shields.io/packagist/dt/beyondcode/laravel-comments.svg?style=flat-square)](https://packagist.org/packages/beyondcode/laravel-comments)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/starfolksoftware/factchecks.svg?style=flat-square)](https://packagist.org/packages/starfolksoftware/factchecks)
+[![Build Status](https://img.shields.io/travis/starfolksoftware/factchecks/master.svg?style=flat-square)](https://travis-ci.org/starfolksoftware/factchecks)
+[![Total Downloads](https://img.shields.io/packagist/dt/starfolksoftware/factchecks.svg?style=flat-square)](https://packagist.org/packages/starfolksoftware/factchecks)
 
 Add the ability to associate factchecks to your Laravel Eloquent models. The factchecks can be approved and nested.
 
