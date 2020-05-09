@@ -4,7 +4,7 @@
 [![Build Status](https://img.shields.io/travis/starfolksoftware/factchecks/master.svg?style=flat-square)](https://travis-ci.org/starfolksoftware/factchecks)
 [![Total Downloads](https://img.shields.io/packagist/dt/starfolksoftware/factchecks.svg?style=flat-square)](https://packagist.org/packages/starfolksoftware/factchecks)
 
-Add the ability to associate factchecks to your Laravel Eloquent models. The factchecks can be approved and nested.
+Add the ability to associate factchecks to your Laravel Eloquent models.
 
 ```php
 $post = Post::find(1);
